@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>連続文様デザイナー - 中学校美術</title>
+  <style>
+    :root {
+      --primary: #005a60;
+      --primary-hover: #004247;
+      --primary-light: #e6f4f5;
+      --accent: #00897b;
+      --bg: #f4f7f6;
+      --card-bg: #ffffff;
+      --text: #2c3e50;
+      --text-muted: #607d8b;
+      --border: #cfd8dc;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 16px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ヘッダー */
+    header {
+      background: var(--card-bg);
+      padding: 20px 24px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      border-left: 8px solid var(--primary);
+    }
+
+    .header-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* 学習への問いかけ・案内バナー */
+    .guidance-banner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .info-card {
+      background: var(--primary-light);
+      border: 1px solid #b2dfdb;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+    }
+
+    .info-card strong {
+      color: var(--primary);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* メインレイアウト */
+    .app-container {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+      .guidance-banner {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* パネル */
+    .panel {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* キャンバスエリア */
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none; /* 誤操作スクロール防止 */
+    }
+
+    /* ツールコントロールグループ */
+    .tool-group {
+      margin-bottom: 16px;
+    }
+
+    .tool-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ボタンデザイン */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      background: #ffffff;
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: var(--accent);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-active {
+      background: var(--primary) !important;
+      color: #ffffff !important;
+      border-color: var(--primary) !important;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+      color: #ffffff;
+    }
+
+    .btn-danger {
+      color: #d32f2f;
+      border-color: #ef9a9a;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: #ffebee;
+      border-color: #e53935;
+      color: #c62828;
+    }
+
+    /* カラーパレット */
+    .color-presets {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 0 0 1px var(--border);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.15);
+    }
+
+    .color-swatch.selected {
+      box-shadow: 0 0 0 3px var(--primary);
+      transform: scale(1.1);
+    }
+
+    input[type="color"] {
+      -webkit-appearance: none;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      cursor: pointer;
+      background: none;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: 1px solid var(--border);
+      border-radius: 50%;
+    }
+
+    /* スライダーデザイン */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      outline: none;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .val-badge {
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 2px 8px;
+      border-radius: 6px;
+      min-width: 48px;
+      text-align: center;
+    }
+
+    /* グリッドカード選択 */
+    .grid-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .option-card {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #ffffff;
+    }
+
+    .option-card:hover {
+      border-color: var(--accent);
+      background: var(--primary-light);
+    }
+
+    .option-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .option-card input[type="radio"] {
+      accent-color: var(--primary);
+    }
+
+    /* チェックボックスグループ */
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* 保存セクション */
+    .save-section {
+      background: #fafafa;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+    }
+
+    /* トースト通知 */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #323232;
+      color: #ffffff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* モーダルダイアログ */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 14px;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+      text-align: center;
+    }
+
+    .modal-card h3 {
+      font-size: 1.2rem;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .modal-card p {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header>
+    <div class="header-title">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="8" height="8" rx="1"/>
+        <rect x="13" y="3" width="8" height="8" rx="1"/>
+        <rect x="3" y="13" width="8" height="8" rx="1"/>
+        <rect x="13" y="13" width="8" height="8" rx="1"/>
+      </svg>
+      連続文様デザイナー
+    </div>
+    <div class="header-subtitle">ひとつの形から、どんなリズムや美しさが生まれるだろう？</div>
+  </header>
+
+  <!-- 指導案・案内メッセージ -->
+  <div class="guidance-banner">
+    <div class="info-card">
+      <strong>🤔 探究の問い</strong>
+      「形を変えずに、並べ方だけ変えると印象はどう変わるかな？」
+    </div>
+    <div class="info-card">
+      <strong>📤 完成後の提出方法</strong>
+      「『作品をPNG画像で保存』を押し、保存したPNGファイルをGoogle Classroomの課題に添付しよう。」
+    </div>
+  </div>
+
+  <!-- メインワークエリア -->
+  <div class="app-container">
+
+    <!-- 左側：もとになる形を描こう -->
+    <div class="panel">
+      <div class="panel-title">
+        ① もとになる形を描こう
+      </div>
+
+      <!-- 描画キャンバス -->
+      <div class="canvas-wrapper">
+        <canvas id="drawCanvas" width="600" height="600"></canvas>
+      </div>
+
+      <!-- ガイド用方眼の表示トグル -->
+      <div class="tool-group" style="margin-bottom: 12px;">
+        <label class="checkbox-label" style="font-weight: 600; color: var(--primary);">
+          <input type="checkbox" id="drawGridToggle" checked onchange="toggleDrawGrid(this.checked)">
+          📐 ガイド用の方眼（マス目）を表示
+        </label>
+      </div>
+
+      <!-- ツール切り替え（ペン・消しゴム） -->
+      <div class="tool-group">
+        <div class="tool-label">描画ツール</div>
+        <div class="btn-row">
+          <button id="penBtn" class="btn btn-active" onclick="setMode('pen')">
+            ✏️ ペン
+          </button>
+          <button id="eraserBtn" class="btn" onclick="setMode('eraser')">
+            🧹 消しゴム
+          </button>
+        </div>
+      </div>
+
+      <!-- 色選択 -->
+      <div class="tool-group">
+        <div class="tool-label">ペンの色</div>
+        <div class="color-presets">
+          <div class="color-swatch selected" style="background: #000000;" onclick="selectColor('#000000', this)"></div>
+          <div class="color-swatch" style="background: #e53935;" onclick="selectColor('#e53935', this)"></div>
+          <div class="color-swatch" style="background: #1e88e5;" onclick="selectColor('#1e88e5', this)"></div>
+          <div class="color-swatch" style="background: #4caf50;" onclick="selectColor('#4caf50', this)"></div>
+          <div class="color-swatch" style="background: #fdd835;" onclick="selectColor('#fdd835', this)"></div>
+          <div class="color-swatch" style="background: #8e24aa;" onclick="selectColor('#8e24aa', this)"></div>
+          <div class="color-swatch" style="background: #6d4c41;" onclick="selectColor('#6d4c41', this)"></div>
+          <div class="color-swatch" style="background: #fb8c00;" onclick="selectColor('#fb8c00', this)"></div>
+          <input type="color" id="customColorPicker" value="#000000" title="自由な色を選択" onchange="selectCustomColor(this.value)">
+        </div>
+      </div>
+
+      <!-- 線の太さ -->
+      <div class="tool-group">
+        <div class="tool-label">
+          <span>線の太さ</span>
+          <span id="lineWidthVal" class="val-badge">8 px</span>
+        </div>
+        <div class="slider-container">
+          <input type="range" id="lineWidth" min="2" max="38" value="8" oninput="updateLineWidth(this.value)">
+        </div>
+      </div>
+
+      <!-- 操作ボタン（Undo/Redo/全消去） -->
+      <div class="tool-group" style="margin-top: 18px;">
+        <div class="btn-row">
+          <button id="undoBtn" class="btn" onclick="undo()" disabled>↩️ 取り消す</button>
+          <button id="redoBtn" class="btn" onclick="redo()" disabled>↪️ やり直す</button>
+          <button id="clearBtn" class="btn btn-danger" onclick="showClearModal()" style="margin-left: auto;">🗑️ 全消去</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側：繰り返し方を工夫しよう -->
+    <div class="panel">
+      <div class="panel-title">
+        ② 繰り返し方を工夫しよう
+      </div>
+
+      <!-- プレビューキャンバス -->
+      <div class="canvas-wrapper" style="aspect-ratio: 960 / 1056;">
+        <canvas id="patternCanvas" width="960" height="1056"></canvas>
+      </div>
+
+      <!-- 並べ方の選択 -->
+      <div class="tool-group">
+        <div class="tool-label">並べ方（パターンタイプ）</div>
+        <div class="grid-options">
+          <label class="option-card selected" id="opt-same">
+            <input type="radio" name="placement" value="same" checked onclick="setPlacement('same')">
+            1. 同じ向きで繰り返す
+          </label>
+          <label class="option-card" id="opt-rotate_adj">
+            <input type="radio" name="placement" value="rotate_adj" onclick="setPlacement('rotate_adj')">
+            2. となりを回転させる
+          </label>
+          <label class="option-card" id="opt-flip_h">
+            <input type="radio" name="placement" value="flip_h" onclick="setPlacement('flip_h')">
+            3. となりを左右反転
+          </label>
+          <label class="option-card" id="opt-flip_v">
+            <input type="radio" name="placement" value="flip_v" onclick="setPlacement('flip_v')">
+            4. となりを上下反転
+          </label>
+          <label class="option-card" id="opt-rotate_180">
+            <input type="radio" name="placement" value="rotate_180" onclick="setPlacement('rotate_180')">
+            5. 交互に180度回転
+          </label>
+          <label class="option-card" id="opt-combo">
+            <input type="radio" name="placement" value="combo" onclick="setPlacement('combo')">
+            6. 回転と反転の組み合わせ
+          </label>
+        </div>
+      </div>
+
+      <!-- 回転角度選択 -->
+      <div class="tool-group">
+        <div class="tool-label">回転角度</div>
+        <div class="btn-row">
+          <button class="btn angle-btn btn-active" data-angle="90" onclick="setAngle(90, this)">90度</button>
+          <button class="btn angle-btn" data-angle="45" onclick="setAngle(45, this)">45度</button>
+          <button class="btn angle-btn" data-angle="180" onclick="setAngle(180, this)">180度</button>
+          <button class="btn angle-btn" data-angle="60" onclick="setAngle(60, this)">60度</button>
+          <button class="btn angle-btn" data-angle="120" onclick="setAngle(120, this)">120度</button>
+        </div>
+      </div>
+
+      <!-- パラメータ調整スライダー -->
+      <div class="tool-group">
+        <div class="tool-label">
+          <span>繰り返しの数</span>
+          <span id="gridCountVal" class="val-badge">4×4</span>
+        </div>
+        <div class="slider-container">
+          <input type="range" id="gridCount" min="2" max="9" value="4" oninput="updateGridCount(this.value)">
+        </div>
+      </div>
+
+      <div class="tool-group">
+        <div class="tool-label">
+          <span>形と形の間隔</span>
+          <span id="spacingVal" class="val-badge">0 %</span>
+        </div>
+        <div class="slider-container">
+          <input type="range" id="spacing" min="0" max="65" value="0" oninput="updateSpacing(this.value)">
+        </div>
+      </div>
+
+      <div class="tool-group">
+        <div class="tool-label">
+          <span>形の大きさ</span>
+          <span id="scaleVal" class="val-badge">100 %</span>
+        </div>
+        <div class="slider-container">
+          <input type="range" id="scale" min="30" max="100" value="100" oninput="updateScale(this.value)">
+        </div>
+      </div>
+
+      <!-- チェックボックスと背景色 -->
+      <div class="tool-group">
+        <div class="tool-label">背景色と補助表示</div>
+        <div class="btn-row" style="align-items: center;">
+          <label style="font-size: 0.9rem; font-weight: 600;">背景色:</label>
+          <input type="color" id="bgColor" value="#ffffff" onchange="updateBgColor(this.value)">
+          <div class="color-swatch" style="background: #ffffff;" onclick="selectBgPreset('#ffffff')"></div>
+          <div class="color-swatch" style="background: #f5f5f0;" onclick="selectBgPreset('#f5f5f0')"></div>
+          <div class="color-swatch" style="background: #eef2f5;" onclick="selectBgPreset('#eef2f5')"></div>
+          <div class="color-swatch" style="background: #fdf6e3;" onclick="selectBgPreset('#fdf6e3')"></div>
+        </div>
+
+        <div class="checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="staggerToggle" onchange="updateStagger(this.checked)">
+            1行おきに半分ずらす（千鳥配置）
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" id="gridToggle" onchange="updateGridToggle(this.checked)">
+            制作確認用のマス目表示
+          </label>
+        </div>
+      </div>
+
+      <!-- ③ 作品を保存しよう -->
+      <div class="save-section">
+        <div class="panel-title" style="font-size: 1.1rem;">
+          ③ 作品を保存・再開しよう
+        </div>
+
+        <div class="tool-group">
+          <div class="tool-label">作品名</div>
+          <input type="text" id="artworkTitle" class="input-field" placeholder="例：リズムの花模様" value="私の連続文様">
+        </div>
+
+        <div class="btn-row" style="gap: 12px;">
+          <button class="btn btn-primary" style="flex: 1; padding: 12px;" onclick="downloadPNG()">
+            🖼️ PNG画像で保存
+          </button>
+          <button class="btn" style="flex: 1; padding: 12px;" onclick="downloadJSON()">
+            💾 途中経過を保存(JSON)
+          </button>
+        </div>
+
+        <div style="margin-top: 12px;">
+          <label class="btn" style="width: 100%; padding: 10px; cursor: pointer;">
+            📂 途中経過を開く(JSON)
+            <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="loadJSON(event)">
+          </label>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- トースト通知 -->
+  <div id="toast">メッセージ</div>
+
+  <!-- 全消去の確認モーダル -->
+  <div id="clearModal" class="modal-overlay">
+    <div class="modal-card">
+      <h3>⚠️ 全消去の確認</h3>
+      <p>描き込んだ形をすべて消去しますか？<br>この操作は取り消せません。</p>
+      <div class="modal-actions">
+        <button class="btn" onclick="hideClearModal()">キャンセル</button>
+        <button class="btn btn-danger" onclick="confirmClear()">全消去する</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // アプリケーションの状態管理
+    // -------------------------------------------------------------
+    const drawCanvas = document.getElementById('drawCanvas');
+    const drawCtx = drawCanvas.getContext('2d');
+
+    // パターン転写用のオフスクリーンキャンバス（ガイド線を含まない純粋な描き込みのみを保持）
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = 600;
+    offscreenCanvas.height = 600;
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+
+    const patternCanvas = document.getElementById('patternCanvas');
+    const patternCtx = patternCanvas.getContext('2d');
+
+    let currentMode = 'pen'; // 'pen' | 'eraser'
+    let currentColor = '#000000';
+    let currentLineWidth = 8;
+    let showDrawGrid = true; // 基本形描画ガイド方眼の表示ON/OFF
+
+    // 描画ストロークの歴史（JSON保存・Undo/Redo用）
+    let strokes = [];
+    let redoStack = [];
+    let currentStroke = null;
+    let isDrawing = false;
+
+    // パターン生成設定
+    let settings = {
+      placement: 'same',     // 'same' | 'rotate_adj' | 'flip_h' | 'flip_v' | 'rotate_180' | 'combo'
+      angle: 90,             // 90 | 45 | 180 | 60 | 120
+      gridCount: 4,          // 2 ~ 9
+      spacing: 0,            // 0 ~ 65 (%)
+      scale: 100,            // 30 ~ 100 (%)
+      bgColor: '#ffffff',
+      stagger: false,
+      showGrid: false,
+      showDrawGrid: true
+    };
+
+    // -------------------------------------------------------------
+    // 初期化処理
+    // -------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      initCanvas();
+      setupPointerEvents();
+      updatePatternPreview();
+    });
+
+    function initCanvas() {
+      drawCtx.lineCap = 'round';
+      drawCtx.lineJoin = 'round';
+      offscreenCtx.lineCap = 'round';
+      offscreenCtx.lineJoin = 'round';
+      redrawDrawCanvas();
+    }
+
+    // -------------------------------------------------------------
+    // 描画機能 (Pointer Events & Undo/Redo)
+    // -------------------------------------------------------------
+    function setupPointerEvents() {
+      drawCanvas.addEventListener('pointerdown', onPointerDown);
+      drawCanvas.addEventListener('pointermove', onPointerMove);
+      drawCanvas.addEventListener('pointerup', onPointerUp);
+      drawCanvas.addEventListener('pointercancel', onPointerUp);
+    }
+
+    function getCanvasPos(e) {
+      const rect = drawCanvas.getBoundingClientRect();
+      const scaleX = drawCanvas.width / rect.width;
+      const scaleY = drawCanvas.height / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    function onPointerDown(e) {
+      drawCanvas.setPointerCapture(e.pointerId);
+      isDrawing = true;
+      const pos = getCanvasPos(e);
+
+      currentStroke = {
+        type: currentMode,
+        color: currentColor,
+        width: currentLineWidth,
+        points: [pos]
+      };
+
+      redrawDrawCanvas();
+      updatePatternPreview();
+    }
+
+    function onPointerMove(e) {
+      if (!isDrawing || !currentStroke) return;
+      const pos = getCanvasPos(e);
+
+      currentStroke.points.push(pos);
+      redrawDrawCanvas();
+      updatePatternPreview();
+    }
+
+    function onPointerUp(e) {
+      if (!isDrawing) return;
+      isDrawing = false;
+      if (currentStroke && currentStroke.points.length > 0) {
+        strokes.push(currentStroke);
+        redoStack = []; // 新しい操作が行われたらRedoクリア
+        currentStroke = null;
+        updateUndoRedoButtons();
+        redrawDrawCanvas();
+        updatePatternPreview();
+      }
+    }
+
+    // ガイド方眼の描画
+    function drawGuideGrid(ctx) {
+      ctx.save();
+      const gridDiv = 4; // 4×4のガイドマス目
+      const step = 600 / gridDiv;
+
+      ctx.setLineDash([4, 4]);
+
+      for (let i = 1; i < gridDiv; i++) {
+        const pos = i * step;
+
+        if (i === gridDiv / 2) {
+          // 中央の十字軸線（視認性の良い濃い水色）
+          ctx.strokeStyle = 'rgba(0, 90, 96, 0.45)';
+          ctx.lineWidth = 1.5;
+        } else {
+          // ガイド線（柔らかい薄水色）
+          ctx.strokeStyle = 'rgba(0, 90, 96, 0.2)';
+          ctx.lineWidth = 1;
+        }
+
+        // 垂直線
+        ctx.beginPath();
+        ctx.moveTo(pos, 0);
+        ctx.lineTo(pos, 600);
+        ctx.stroke();
+
+        // 水平線
+        ctx.beginPath();
+        ctx.moveTo(0, pos);
+        ctx.lineTo(600, pos);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // ストローク描画共通処理
+    function drawStrokeToCtx(ctx, stroke) {
+      if (!stroke || !stroke.points || stroke.points.length === 0) return;
+      ctx.save();
+      ctx.strokeStyle = (stroke.type === 'eraser') ? '#ffffff' : stroke.color;
+      ctx.fillStyle = (stroke.type === 'eraser') ? '#ffffff' : stroke.color;
+      ctx.lineWidth = stroke.width;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      if (stroke.points.length === 1) {
+        ctx.beginPath();
+        ctx.arc(stroke.points[0].x, stroke.points[0].y, stroke.width / 2, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function redrawDrawCanvas() {
+      // 1. オフスクリーンキャンバス（描画オブジェクトのみ・ガイド線なし）を更新
+      offscreenCtx.clearRect(0, 0, 600, 600);
+      offscreenCtx.fillStyle = '#ffffff';
+      offscreenCtx.fillRect(0, 0, 600, 600);
+
+      for (const stroke of strokes) {
+        drawStrokeToCtx(offscreenCtx, stroke);
+      }
+      if (currentStroke) {
+        drawStrokeToCtx(offscreenCtx, currentStroke);
+      }
+
+      // 2. 画面上の描画キャンバス（ガイド方眼あり）を更新
+      drawCtx.clearRect(0, 0, 600, 600);
+      drawCtx.fillStyle = '#ffffff';
+      drawCtx.fillRect(0, 0, 600, 600);
+
+      // ガイド方眼を先に描画
+      if (showDrawGrid) {
+        drawGuideGrid(drawCtx);
+      }
+
+      // その上にストロークを描画
+      for (const stroke of strokes) {
+        drawStrokeToCtx(drawCtx, stroke);
+      }
+      if (currentStroke) {
+        drawStrokeToCtx(drawCtx, currentStroke);
+      }
+    }
+
+    function toggleDrawGrid(checked) {
+      showDrawGrid = checked;
+      settings.showDrawGrid = checked;
+      redrawDrawCanvas();
+    }
+
+    // -------------------------------------------------------------
+    // Undo / Redo / 全消去
+    // -------------------------------------------------------------
+    function undo() {
+      if (strokes.length === 0) return;
+      const popped = strokes.pop();
+      redoStack.push(popped);
+      redrawDrawCanvas();
+      updateUndoRedoButtons();
+      updatePatternPreview();
+    }
+
+    function redo() {
+      if (redoStack.length === 0) return;
+      const popped = redoStack.pop();
+      strokes.push(popped);
+      redrawDrawCanvas();
+      updateUndoRedoButtons();
+      updatePatternPreview();
+    }
+
+    function updateUndoRedoButtons() {
+      document.getElementById('undoBtn').disabled = (strokes.length === 0);
+      document.getElementById('redoBtn').disabled = (redoStack.length === 0);
+    }
+
+    function showClearModal() {
+      document.getElementById('clearModal').classList.add('active');
+    }
+
+    function hideClearModal() {
+      document.getElementById('clearModal').classList.remove('active');
+    }
+
+    function confirmClear() {
+      hideClearModal();
+      strokes = [];
+      redoStack = [];
+      redrawDrawCanvas();
+      updateUndoRedoButtons();
+      updatePatternPreview();
+      showToast('描画内容を全消去しました');
+    }
+
+    // -------------------------------------------------------------
+    // ツールUIのコントロール
+    // -------------------------------------------------------------
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('penBtn').className = (mode === 'pen') ? 'btn btn-active' : 'btn';
+      document.getElementById('eraserBtn').className = (mode === 'eraser') ? 'btn btn-active' : 'btn';
+    }
+
+    function selectColor(color, swatchEl) {
+      currentColor = color;
+      document.getElementById('customColorPicker').value = color;
+      document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
+      if (swatchEl) swatchEl.classList.add('selected');
+      if (currentMode === 'eraser') setMode('pen');
+    }
+
+    function selectCustomColor(color) {
+      currentColor = color;
+      document.querySelectorAll('.color-swatch').forEach(el => el.classList.remove('selected'));
+      if (currentMode === 'eraser') setMode('pen');
+    }
+
+    function updateLineWidth(val) {
+      currentLineWidth = parseInt(val, 10);
+      document.getElementById('lineWidthVal').textContent = val + ' px';
+    }
+
+    // -------------------------------------------------------------
+    // パターンプレビュー生成（描画アルゴリズム）
+    // -------------------------------------------------------------
+    function updatePatternPreview() {
+      const pw = patternCanvas.width;
+      const ph = patternCanvas.height;
+
+      // 1. 背景色の塗りつぶし
+      patternCtx.fillStyle = settings.bgColor;
+      patternCtx.fillRect(0, 0, pw, ph);
+
+      const N = settings.gridCount;
+      const cellW = pw / N;
+      const cellH = ph / N;
+
+      // スケーリングとマージンの計算
+      const baseScale = (settings.scale / 100);
+      const spacingMargin = (settings.spacing / 100) * 0.5; // 余白率
+      const drawScale = baseScale * (1 - spacingMargin);
+
+      const rows = N;
+      const cols = settings.stagger ? N + 1 : N;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          let cx = (c + 0.5) * cellW;
+          let cy = (r + 0.5) * cellH;
+
+          // 千鳥配置（奇数行を横に50%オフセット）
+          if (settings.stagger && (r % 2 === 1)) {
+            cx -= cellW * 0.5;
+          }
+
+          // セル内外判定の範囲調整
+          if (cx + cellW < 0 || cx - cellW > pw) continue;
+
+          // 配置タイプによる回転・反転変換の決定
+          let angleRad = 0;
+          let scaleX = 1;
+          let scaleY = 1;
+
+          const baseRad = (settings.angle * Math.PI) / 180;
+
+          switch (settings.placement) {
+            case 'same':
+              break;
+
+            case 'rotate_adj':
+              if ((r + c) % 2 === 1) {
+                angleRad = baseRad;
+              }
+              break;
+
+            case 'flip_h':
+              if (c % 2 === 1) {
+                scaleX = -1;
+              }
+              break;
+
+            case 'flip_v':
+              if (r % 2 === 1) {
+                scaleY = -1;
+              }
+              break;
+
+            case 'rotate_180':
+              if ((r + c) % 2 === 1) {
+                angleRad = Math.PI;
+              }
+              break;
+
+            case 'combo':
+              if (c % 2 === 1) {
+                scaleX = -1;
+                angleRad = baseRad;
+              }
+              if (r % 2 === 1) {
+                scaleY = -1;
+              }
+              break;
+          }
+
+          // 変換マトリクスの適用と描画（※ガイド線を含まない offscreenCanvas を転写！）
+          patternCtx.save();
+          patternCtx.translate(cx, cy);
+          patternCtx.rotate(angleRad);
+          patternCtx.scale(scaleX * drawScale * (cellW / offscreenCanvas.width), scaleY * drawScale * (cellH / offscreenCanvas.height));
+          patternCtx.translate(-offscreenCanvas.width / 2, -offscreenCanvas.height / 2);
+
+          // 純粋なもとになる形（ガイド線なし）を描画
+          patternCtx.drawImage(offscreenCanvas, 0, 0);
+          patternCtx.restore();
+        }
+      }
+
+      // 制作確認用のマス目描画
+      if (settings.showGrid) {
+        patternCtx.save();
+        patternCtx.strokeStyle = 'rgba(0, 90, 96, 0.35)';
+        patternCtx.lineWidth = 2;
+        patternCtx.setLineDash([6, 6]);
+
+        for (let i = 1; i < N; i++) {
+          // 垂直線
+          patternCtx.beginPath();
+          patternCtx.moveTo(i * cellW, 0);
+          patternCtx.lineTo(i * cellW, ph);
+          patternCtx.stroke();
+
+          // 水平線
+          patternCtx.beginPath();
+          patternCtx.moveTo(0, i * cellH);
+          patternCtx.lineTo(pw, i * cellH);
+          patternCtx.stroke();
+        }
+        patternCtx.restore();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // パラメータ変更ハンドラ
+    // -------------------------------------------------------------
+    function setPlacement(type) {
+      settings.placement = type;
+      document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+      const activeCard = document.getElementById('opt-' + type);
+      if (activeCard) activeCard.classList.add('selected');
+      updatePatternPreview();
+    }
+
+    function setAngle(deg, btnEl) {
+      settings.angle = deg;
+      document.querySelectorAll('.angle-btn').forEach(el => el.classList.remove('btn-active'));
+      if (btnEl) btnEl.classList.add('btn-active');
+      updatePatternPreview();
+    }
+
+    function updateGridCount(val) {
+      settings.gridCount = parseInt(val, 10);
+      document.getElementById('gridCountVal').textContent = `${val}×${val}`;
+      updatePatternPreview();
+    }
+
+    function updateSpacing(val) {
+      settings.spacing = parseInt(val, 10);
+      document.getElementById('spacingVal').textContent = `${val} %`;
+      updatePatternPreview();
+    }
+
+    function updateScale(val) {
+      settings.scale = parseInt(val, 10);
+      document.getElementById('scaleVal').textContent = `${val} %`;
+      updatePatternPreview();
+    }
+
+    function updateBgColor(val) {
+      settings.bgColor = val;
+      updatePatternPreview();
+    }
+
+    function selectBgPreset(val) {
+      document.getElementById('bgColor').value = val;
+      updateBgColor(val);
+    }
+
+    function updateStagger(checked) {
+      settings.stagger = checked;
+      updatePatternPreview();
+    }
+
+    function updateGridToggle(checked) {
+      settings.showGrid = checked;
+      updatePatternPreview();
+    }
+
+    // -------------------------------------------------------------
+    // 保存・復元機能 (PNG / JSON)
+    // -------------------------------------------------------------
+
+    // ① PNG画像で保存
+    function downloadPNG() {
+      const titleInput = document.getElementById('artworkTitle').value.trim();
+      const filename = (titleInput ? titleInput : '私の連続文様') + '.png';
+
+      // マス目を一時非表示にして綺麗にキャプチャ
+      const tempShowGrid = settings.showGrid;
+      settings.showGrid = false;
+      updatePatternPreview();
+
+      patternCanvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        // マス目設定を戻す
+        settings.showGrid = tempShowGrid;
+        updatePatternPreview();
+
+        showToast(`🖼️ PNG画像「${filename}」を保存しました！`);
+      }, 'image/png');
+    }
+
+    // ② 途中経過をJSONで保存
+    function downloadJSON() {
+      const titleInput = document.getElementById('artworkTitle').value.trim();
+      const filename = (titleInput ? titleInput : '私の連続文様') + '_途中経過.json';
+
+      const exportData = {
+        app: 'renzokumonyo-v1',
+        title: titleInput,
+        savedAt: new Date().toISOString(),
+        strokes: strokes,
+        settings: settings,
+        toolState: {
+          mode: currentMode,
+          color: currentColor,
+          lineWidth: currentLineWidth,
+          showDrawGrid: showDrawGrid
+        }
+      };
+
+      const jsonStr = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      showToast(`💾 途中経過データ「${filename}」を保存しました！`);
+    }
+
+    // ③ 途中経過をJSONから復元
+    function loadJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const data = JSON.parse(evt.target.result);
+          if (data.app !== 'renzokumonyo-v1') {
+            alert('このファイルは「連続文様デザイナー」の途中経過データではありません。');
+            return;
+          }
+
+          // 復元処理
+          if (data.title !== undefined) {
+            document.getElementById('artworkTitle').value = data.title;
+          }
+
+          if (Array.isArray(data.strokes)) {
+            strokes = data.strokes;
+            redoStack = [];
+          }
+
+          if (data.settings) {
+            settings = { ...settings, ...data.settings };
+            
+            // UI反映
+            setPlacement(settings.placement);
+            setAngle(settings.angle, document.querySelector(`.angle-btn[data-angle="${settings.angle}"]`));
+            
+            document.getElementById('gridCount').value = settings.gridCount;
+            document.getElementById('gridCountVal').textContent = `${settings.gridCount}×${settings.gridCount}`;
+
+            document.getElementById('spacing').value = settings.spacing;
+            document.getElementById('spacingVal').textContent = `${settings.spacing} %`;
+
+            document.getElementById('scale').value = settings.scale;
+            document.getElementById('scaleVal').textContent = `${settings.scale} %`;
+
+            document.getElementById('bgColor').value = settings.bgColor;
+            document.getElementById('staggerToggle').checked = settings.stagger;
+            document.getElementById('gridToggle').checked = settings.showGrid;
+          }
+
+          if (data.toolState) {
+            currentLineWidth = data.toolState.lineWidth || 8;
+            document.getElementById('lineWidth').value = currentLineWidth;
+            document.getElementById('lineWidthVal').textContent = currentLineWidth + ' px';
+            
+            if (data.toolState.showDrawGrid !== undefined) {
+              showDrawGrid = data.toolState.showDrawGrid;
+              document.getElementById('drawGridToggle').checked = showDrawGrid;
+            }
+
+            selectColor(data.toolState.color || '#000000');
+            setMode(data.toolState.mode || 'pen');
+          }
+
+          redrawDrawCanvas();
+          updateUndoRedoButtons();
+          updatePatternPreview();
+          showToast('📂 途中経過を復元しました！制作を続けましょう。');
+        } catch (err) {
+          alert('ファイルの読み込みに失敗しました。正しいJSONファイルか確認してください。');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = ''; // ファイルインプットリセット
+    }
+
+    // トースト表示関数
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
